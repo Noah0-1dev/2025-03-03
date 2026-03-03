@@ -4,192 +4,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Analog Clock & Adjustable Calendar</title>
-    <style>
-        /* --- CSS STYLING --- */
-        :root {
-            --bg-color: #1a1e21;
-            --container-bg: #24292e;
-            --accent-red: #ff4757;
-            --accent-orange: #ffa502;
-            --accent-blue: #1e90ff;
-            --text-color: #ffffff;
-            --shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
-        }
-
-        body {
-            margin: 0;
-            padding: 0;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-            background-color: var(--bg-color);
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            color: var(--text-color);
-        }
-
-        .container {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 40px;
-            width: 100%;
-            max-width: 400px;
-            padding: 20px;
-        }
-
-        /* Đồng hồ Analog */
-        .clock-wrap {
-            position: relative;
-            width: 300px;
-            height: 300px;
-            background: var(--container-bg);
-            border-radius: 50%;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            box-shadow: var(--shadow);
-            border: 4px solid rgba(255, 255, 255, 0.05);
-        }
-
-        .clock {
-            position: relative;
-            width: 100%;
-            height: 100%;
-        }
-
-        .dot {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            width: 12px;
-            height: 12px;
-            background: #fff;
-            border-radius: 50%;
-            transform: translate(-50%, -50%);
-            z-index: 10;
-            box-shadow: 0 0 10px rgba(255,255,255,0.5);
-        }
-
-        /* Kim đồng hồ */
-        .hand {
-            position: absolute;
-            bottom: 50%;
-            left: 50%;
-            transform-origin: bottom;
-            border-radius: 10px;
-            transform: translateX(-50%);
-        }
-
-        .hour { width: 8px; height: 70px; background: var(--accent-red); z-index: 3; }
-        .minute { width: 5px; height: 100px; background: var(--accent-orange); z-index: 2; }
-        .second { width: 2px; height: 120px; background: var(--accent-blue); z-index: 1; }
-
-        /* Các con số trên đồng hồ */
-        .numbers {
-            position: absolute;
-            width: 100%;
-            height: 100%;
-            top: 0;
-            left: 0;
-        }
-
-        .numbers span {
-            position: absolute;
-            inset: 15px;
-            text-align: center;
-            transform: rotate(calc(30deg * var(--i)));
-        }
-
-        .numbers span b {
-            display: inline-block;
-            font-size: 1.4rem;
-            font-weight: bold;
-            color: #fff;
-            transform: rotate(calc(-30deg * var(--i)));
-        }
-
-        /* Lịch tùy chỉnh */
-        .calendar {
-            background: var(--container-bg);
-            width: 100%;
-            padding: 25px;
-            border-radius: 20px;
-            box-shadow: var(--shadow);
-            box-sizing: border-box;
-        }
-
-        .calendar-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-        }
-
-        .calendar-header h3 {
-            margin: 0;
-            font-size: 1.2rem;
-            letter-spacing: 1px;
-        }
-
-        .btn-nav {
-            background: rgba(255, 255, 255, 0.1);
-            border: none;
-            color: white;
-            padding: 8px 15px;
-            border-radius: 8px;
-            cursor: pointer;
-            transition: 0.3s;
-        }
-
-        .btn-nav:hover {
-            background: var(--accent-red);
-        }
-
-        .calendar-weekdays {
-            display: grid;
-            grid-template-columns: repeat(7, 1fr);
-            text-align: center;
-            font-weight: bold;
-            color: var(--accent-orange);
-            margin-bottom: 10px;
-        }
-
-        .calendar-days {
-            display: grid;
-            grid-template-columns: repeat(7, 1fr);
-            gap: 5px;
-            text-align: center;
-        }
-
-        .calendar-days div {
-            padding: 10px 0;
-            font-size: 0.95rem;
-            border-radius: 8px;
-            cursor: pointer;
-            transition: 0.2s;
-        }
-
-        .calendar-days div:hover:not(:empty) {
-            background: rgba(255, 255, 255, 0.1);
-        }
-
-        .today {
-            background: var(--accent-red) !important;
-            color: white;
-            font-weight: bold;
-            box-shadow: 0 0 15px var(--accent-red);
-        }
-
-        .sun { color: #ff4757; }
-        .sat { color: #1e90ff; }
-
-    </style>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
     <div class="container">
-        <!-- Khu vực đồng hồ -->
         <div class="clock-wrap">
             <div class="clock">
                 <div class="dot"></div>
@@ -214,11 +33,10 @@
             </div>
         </div>
 
-        <!-- Khu vực lịch -->
         <div class="calendar">
             <div class="calendar-header">
                 <button id="prevMonth" class="btn-nav">◀</button>
-                <h3 id="monthDisplay">2026年3月</h3>
+                <h3 id="monthDisplay"></h3>
                 <button id="nextMonth" class="btn-nav">▶</button>
             </div>
             <div class="calendar-weekdays">
@@ -228,78 +46,6 @@
         </div>
     </div>
 
-    <script>
-        /* --- JAVASCRIPT LOGIC --- */
-
-        // 1. Cập nhật kim đồng hồ
-        function updateClock() {
-            const now = new Date();
-            const s = now.getSeconds();
-            const m = now.getMinutes();
-            const h = now.getHours();
-
-            // Tính toán góc quay
-            const sDeg = s * 6;
-            const mDeg = m * 6 + s * 0.1;
-            const hDeg = h * 30 + m * 0.5;
-
-            document.getElementById('second').style.transform = `translateX(-50%) rotate(${sDeg}deg)`;
-            document.getElementById('minute').style.transform = `translateX(-50%) rotate(${mDeg}deg)`;
-            document.getElementById('hour').style.transform = `translateX(-50%) rotate(${hDeg}deg)`;
-        }
-
-        // 2. Quản lý lịch
-        let currentViewDate = new Date(); // Ngày đang hiển thị trên lịch
-
-        function renderCalendar() {
-            const year = currentViewDate.getFullYear();
-            const month = currentViewDate.getMonth();
-
-            // Hiển thị tiêu đề tháng/năm
-            document.getElementById('monthDisplay').innerText = `${year}年${month + 1}月`;
-
-            const firstDayOfMonth = new Date(year, month, 1).getDay();
-            const daysInMonth = new Date(year, month + 1, 0).getDate();
-            
-            const daysContainer = document.getElementById('calendarDays');
-            daysContainer.innerHTML = "";
-
-            // Thêm các ô trống cho đầu tuần
-            for (let i = 0; i < firstDayOfMonth; i++) {
-                daysContainer.innerHTML += `<div></div>`;
-            }
-
-            // Thêm các ngày thực tế
-            const realToday = new Date();
-            for (let i = 1; i <= daysInMonth; i++) {
-                const isToday = (i === realToday.getDate() && month === realToday.getMonth() && year === realToday.getFullYear()) 
-                                ? 'class="today"' : '';
-                
-                // Xác định màu sắc cho T7/CN
-                const dayOfWeek = new Date(year, month, i).getDay();
-                let dayClass = "";
-                if (dayOfWeek === 0) dayClass = "sun";
-                if (dayOfWeek === 6) dayClass = "sat";
-
-                daysContainer.innerHTML += `<div ${isToday} class="${dayClass}">${i}</div>`;
-            }
-        }
-
-        // Sự kiện nút bấm lịch
-        document.getElementById('prevMonth').addEventListener('click', () => {
-            currentViewDate.setMonth(currentViewDate.getMonth() - 1);
-            renderCalendar();
-        });
-
-        document.getElementById('nextMonth').addEventListener('click', () => {
-            currentViewDate.setMonth(currentViewDate.getMonth() + 1);
-            renderCalendar();
-        });
-
-        // Khởi chạy
-        setInterval(updateClock, 1000);
-        updateClock();
-        renderCalendar();
-    </script>
+    <script src="script.js"></script>
 </body>
 </html>
