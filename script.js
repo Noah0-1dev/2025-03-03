@@ -1,11 +1,10 @@
-// 1. Cập nhật kim đồng hồ
+// Cập nhật kim đồng hồ
 function updateClock() {
     const now = new Date();
     const s = now.getSeconds();
     const m = now.getMinutes();
     const h = now.getHours();
 
-    // Tính toán góc quay
     const sDeg = s * 6;
     const mDeg = m * 6 + s * 0.1;
     const hDeg = h * 30 + m * 0.5;
@@ -15,47 +14,49 @@ function updateClock() {
     document.getElementById('hour').style.transform = `translateX(-50%) rotate(${hDeg}deg)`;
 }
 
-// 2. Quản lý lịch
-let currentViewDate = new Date(); // Ngày đang hiển thị trên lịch
+// Logic Lịch
+let currentViewDate = new Date();
+let selectedDate = null;
 
 function renderCalendar() {
     const year = currentViewDate.getFullYear();
     const month = currentViewDate.getMonth();
+    const monthNames = ["Tháng 1", "Tháng 2", "Tháng 3", "Tháng 4", "Tháng 5", "Tháng 6", "Tháng 7", "Tháng 8", "Tháng 9", "Tháng 10", "Tháng 11", "Tháng 12"];
 
-    // Hiển thị tiêu đề tháng/năm
-    document.getElementById('monthDisplay').innerText = `${year}年${month + 1}月`;
+    document.getElementById('monthDisplay').innerText = `${monthNames[month]}, ${year}`;
 
-    const firstDayOfMonth = new Date(year, month, 1).getDay();
+    const firstDay = new Date(year, month, 1).getDay();
     const daysInMonth = new Date(year, month + 1, 0).getDate();
-    
     const daysContainer = document.getElementById('calendarDays');
     daysContainer.innerHTML = "";
 
-    // Thêm các ô trống cho đầu tuần
-    for (let i = 0; i < firstDayOfMonth; i++) {
-        daysContainer.innerHTML += `<div></div>`;
+    for (let i = 0; i < firstDay; i++) {
+        daysContainer.appendChild(document.createElement('div'));
     }
 
-    // Thêm các ngày thực tế
     const realToday = new Date();
     for (let i = 1; i <= daysInMonth; i++) {
-        const isToday = (i === realToday.getDate() && month === realToday.getMonth() && year === realToday.getFullYear()) 
-                        ? 'class="today"' : '';
-        
-        // Xác định màu sắc cho T7/CN
-        const dayOfWeek = new Date(year, month, i).getDay();
-        let dayClass = "";
-        if (dayOfWeek === 0) dayClass = "sun";
-        if (dayOfWeek === 6) dayClass = "sat";
+        const daySquare = document.createElement('div');
+        daySquare.innerText = i;
 
-        // Gộp class nếu có cả today và sat/sun
-        let finalClass = isToday ? `class="today ${dayClass}"` : `class="${dayClass}"`;
+        if (i === realToday.getDate() && month === realToday.getMonth() && year === realToday.getFullYear()) {
+            daySquare.classList.add("today");
+        }
 
-        daysContainer.innerHTML += `<div ${finalClass}>${i}</div>`;
+        if (selectedDate && i === selectedDate.getDate() && month === selectedDate.getMonth() && year === selectedDate.getFullYear()) {
+            daySquare.classList.add("selected-day");
+        }
+
+        daySquare.addEventListener('click', () => {
+            selectedDate = new Date(year, month, i);
+            document.getElementById('selectedDateText').innerText = `Đang chọn: ${i} ${monthNames[month]} ${year}`;
+            renderCalendar();
+        });
+
+        daysContainer.appendChild(daySquare);
     }
 }
 
-// Sự kiện nút bấm lịch
 document.getElementById('prevMonth').addEventListener('click', () => {
     currentViewDate.setMonth(currentViewDate.getMonth() - 1);
     renderCalendar();
@@ -66,7 +67,6 @@ document.getElementById('nextMonth').addEventListener('click', () => {
     renderCalendar();
 });
 
-// Khởi chạy
 setInterval(updateClock, 1000);
 updateClock();
 renderCalendar();
